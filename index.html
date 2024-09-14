@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Editor</title>
+    <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
+    <script>
+        require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor/min/vs' } });
+        require(['vs/editor/editor.main'], function() {
+            var editor = monaco.editor.create(document.getElementById('container'), {
+                value: '',
+                language: 'python', // Langage par défaut
+                theme: 'vs-dark'
+            });
+
+            // Fonction pour changer le langage
+            document.getElementById('languageSelect').addEventListener('change', function(event) {
+                var language = event.target.value;
+                monaco.editor.setModelLanguage(editor.getModel(), language);
+            });
+
+            function runCode() {
+                const code = editor.getValue();
+                fetch('https://<your-app-name>.herokuapp.com/run_code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    document.getElementById('output').innerText = `Output:\n${result.stdout}\n\nErrors:\n${result.stderr}`;
+                });
+            }
+
+            document.getElementById('runButton').addEventListener('click', runCode);
+        });
+    </script>
+    <style>
+        #container {
+            height: 80vh;
+            width: 100%;
+        }
+        #output {
+            height: 20vh;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <select id="languageSelect">
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+        <option value="java">Java</option>
+        <option value="csharp">C#</option>
+        <option value="cpp">C++</option>
+        <!-- Ajoute d'autres langages ici -->
+    </select>
+    <div id="container"></div>
+    <button id="runButton">Run Code</button>
+    <div id="output"></div>
+</body>
+</html>
