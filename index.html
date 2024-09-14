@@ -22,7 +22,7 @@
 
             function runCode() {
                 const code = editor.getValue();
-                fetch('https://<your-app-name>.herokuapp.com/run_code', {
+                fetch('https://libereditorback.onrender.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code: code })
